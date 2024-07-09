@@ -7,22 +7,13 @@ import requests
 import yfinance as yf
 from dotenv import load_dotenv
 
-from src.utils import read_transactions_json, read_transactions_xlsx, write_transactions_json
-
 load_dotenv()
-# Получение API ключа из переменных окружения
-API_KEY = os.getenv("api_key")
+API_KEY = os.getenv("API_KEY")
 
 
-def get_greeting(date_time_str: str | None) -> str:
-    """
-    Функция принимает строку с датой и временем (необязательно)
-    и возвращает приветствие в зависимости от времени суток.
-    """
-    if date_time_str is None:
-        date_time = datetime.now()
-    else:
-        date_time = datetime.strptime(date_time_str, "%Y-%m-%d %H:%M:%S")
+def generate_greeting(time_str: str | None) -> str:
+    """Функция возвращает приветствие, в зависимости от времени суток, полученном на входе функции."""
+    date_time = datetime.now() if time_str is None else datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
     hour = date_time.hour
     if 5 <= hour < 12:
         return "Доброе утро!"
@@ -30,59 +21,41 @@ def get_greeting(date_time_str: str | None) -> str:
         return "Добрый день!"
     elif 18 <= hour < 23:
         return "Добрый вечер!"
-    else:
-        return "Доброй ночи!"
+    return "Доброй ночи!"
 
 
-def calculate_total_expenses(transactions: List[Dict[str, Any]]) -> float:
-    """
-    Функция вычисляет общую сумму расходов по списку транзакций.
-    """
-    total_expenses = 0.0
-    for transaction in transactions:
-        if transaction["transaction_amount"] < 0:
-            total_expenses += transaction["transaction_amount"]
-    return total_expenses * -1
+def total_expenses(transactions: List[Dict[str, Any]]) -> Any:
+    """Функция возвращает общую сумму расходов в полученном списке транзакций."""
+    return -sum(t["transaction_amount"] for t in transactions if t["transaction_amount"] < 0)
 
 
-def process_card_data(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Эта функция обрабатывает данные о картах из списка транзакций.
-    """
-    card_data = {}
-    for operation in operations:
-        if isinstance(operation["card_number"], str) and operation["card_number"].startswith("*"):
-            last_digits = operation["card_number"][-4:]
-            if last_digits not in card_data:
-                card_data[last_digits] = {"last_digits": last_digits, "total_spent": 0.0, "cashback": 0.0}
-            if operation["transaction_amount"] < 0:
-                card_data[last_digits]["total_spent"] += round(operation["transaction_amount"] * -1, 1)
-            card_data[last_digits]["cashback"] += operation.get("bonuses_including_cashback", 0.0)
-    return list(card_data.values())
+def summarize_card_data(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Функция обрабатывает данные о картах в полученном списке транзакций."""
+    card_summary = {}
+    for op in operations:
+        if op["card_number"].startswith("*"):
+            last_digits = op["card_number"][-4:]
+            if last_digits not in card_summary:
+                card_summary[last_digits] = {"last_digits": last_digits, "total_spent": 0.0, "cashback": 0.0}
+            if op["transaction_amount"] < 0:
+                card_summary[last_digits]["total_spent"] += -op["transaction_amount"]
+            card_summary[last_digits]["cashback"] += op.get("bonuses_including_cashback", 0.0)
+    return list(card_summary.values())
 
 
-def top_transactions(transactions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Функция возвращает список из пяти самых дорогих транзакций.
-    """
-    transactions.sort(key=lambda x: x["transaction_amount"], reverse=True)
-    return transactions[:5]
+def highest_transactions(transactions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Функция возвращает список из пяти самых дорогих транзакций, исходя из полученного списка словарей."""
+    return sorted(transactions, key=lambda x: x["transaction_amount"], reverse=True)[:5]
 
 
-def get_currency_rate(currency: str) -> Any:
-    """
-    Эта функция получает курс валюты по отношению к рублю с использованием API.
-    """
+def fetch_currency_rate(currency: str) -> Any:
+    """Функция возвращает курс валюты по отношению к рублю, обращаясь к определённому сервису API."""
     url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
     response = requests.get(url, headers={"apikey": API_KEY}, timeout=40)
-    response_data = json.loads(response.text)
-    return response_data["rates"]["RUB"]
+    return json.loads(response.text)["rates"]["RUB"]
 
 
-def get_stock_currency(stock: str) -> Any:
-    """
-    Функция получает текущую цену акции с помощью Yahoo Finance.
-    """
-    stock_data = yf.Ticker(stock)
-    todays_data = stock_data.history(period="1d")
-    return todays_data["High"].iloc[0]
+def fetch_stock_price(ticker: str) -> Any:
+    """Функция возвращает текущую цену акции с помощью библиотеки Yahoo Finance."""
+    stock = yf.Ticker(ticker)
+    return stock.history(period="1d")["High"].iloc[0]

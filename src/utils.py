@@ -1,4 +1,3 @@
-import json
 import logging
 from logging import Logger
 from typing import Any
@@ -6,36 +5,17 @@ from typing import Any
 import pandas as pd
 
 
-def ligging_setup() -> Logger:
-    """
-    Настройка логирования.
-    """
-    # Настройка корневого логгера
+def configure_logger() -> Logger:
+    """Настройка логгирования."""
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
-        filename="search_log.txt",
-        filemode="w",
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        filename="log.txt",
+        filemode="w"
     )
-    # Создание и возвращение объекта Logger
-    logger = logging.getLogger(__name__)
-    return logger
+    return logging.getLogger(__name__)
 
 
-def read_transactions_xlsx(file_path: str) -> Any:
-    """
-    Эта функция читает данные о транзакциях из файла Excel.
-    """
-    transactions_df = pd.read_excel(file_path)
-    return transactions_df.to_dict("records")
-
-
-def write_transactions_json(file_path: str, data: Any) -> None:
-    """Читает"""
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-
-
-def read_transactions_json(file_path: str) -> Any:
-    with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def load_transactions_from_excel(path: str) -> Any:
+    """Загрузка данных о транзакциях из Excel файла."""
+    return pd.read_excel(path).to_dict("records")

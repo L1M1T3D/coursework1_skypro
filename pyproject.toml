@@ -7,8 +7,29 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+black = "^24.4.2"
+isort = "^5.13.2"
+mypy = "^1.10.1"
+flake8 = "^7.1.0"
+requests = "^2.32.3"
+pandas = "^2.2.2"
+pandas-stubs = "^2.2.2.240603"
+pytest = "^8.2.2"
+yfinance = "^0.2.40"
+python-dotenv = "^1.0.1"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+disallow_untyped_defs = true
+warn_return_any = true
+exclude = 'venv'
+
+[tool.black]
+line-length = 119
+
+[tool.isort]
+line_length = 119
