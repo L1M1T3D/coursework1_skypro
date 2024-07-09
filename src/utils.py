@@ -8,10 +8,7 @@ import pandas as pd
 def configure_logger() -> Logger:
     """Настройка логгирования."""
     logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        filename="log.txt",
-        filemode="w"
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", filename="log.txt", filemode="w"
     )
     return logging.getLogger(__name__)
 
