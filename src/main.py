@@ -6,10 +6,11 @@ from src.views import main_views
 logger = configure_logger()
 
 
-def main():
+def main() -> None:
+    """Главная функция проекта, вызывает все остальные функции."""
     print("Начинаем выполнение программы.")
-#    main_views()
-#    main_reports()
+    main_views()
+    main_reports()
     main_services()
     print("Программа завершена.")
 

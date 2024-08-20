@@ -1,7 +1,8 @@
 import json
 import logging
 import re
-from utils import load_transactions_from_excel
+
+from src.utils import load_transactions_from_excel
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,6 +17,7 @@ def find_personal_transfers(transactions: list) -> str:
 
 
 def main_services() -> None:
+    """Главная функция модуля services.py."""
     print("Добро пожаловать в модуль сервисов!")
     print("\nСейчас будет продемонстрирована функция поиска переводов физ. лицам:")
 

@@ -1,8 +1,8 @@
+import json
 from datetime import datetime, timedelta
 from typing import Any
 
 import pandas as pd
-import json
 
 from src.utils import configure_logger
 
@@ -31,6 +31,7 @@ def filter_transactions_by_category_and_date(transactions: pd.DataFrame, categor
 
 
 def main_reports() -> None:
+    """Главная функция модуля reports.py."""
     print("Добро пожаловать в модуль отчетов!")
 
     print("1) Сначала загрузим транзакции из Excel:")

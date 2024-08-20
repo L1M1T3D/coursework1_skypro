@@ -6,7 +6,8 @@ from typing import Any, Dict, List
 import requests
 import yfinance as yf
 from dotenv import load_dotenv
-from utils import load_transactions_from_excel
+
+from src.utils import load_transactions_from_excel
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -63,6 +64,7 @@ def fetch_stock_price(ticker: str) -> Any:
 
 
 def main_views() -> None:
+    """Главная функция модуля views.py."""
     transactions = load_transactions_from_excel("../data/operations.xls")
     print("Добро пожаловать в модуль работы с данными о транзакциях!")
     print("Давайте начнем с приветствия в зависимости от времени суток.")
