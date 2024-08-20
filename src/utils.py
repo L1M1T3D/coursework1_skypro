@@ -16,3 +16,4 @@ def configure_logger() -> Logger:
 def load_transactions_from_excel(path: str) -> Any:
     """Загрузка данных о транзакциях из Excel файла."""
     return pd.read_excel(path).to_dict("records")
+
